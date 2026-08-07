@@ -1,0 +1,35 @@
+{
+  "name": "server",
+  "version": "1.0.0",
+  "description": "Voice To Slide AI Backend",
+  "main": "server.js",
+
+  "scripts": {
+    "start": "node server.js"
+  },
+
+  "keywords": [
+    "AI",
+    "voice",
+    "slides",
+    "groq",
+    "whisper"
+  ],
+
+  "author": "Voice To Slide Team",
+
+  "license": "ISC",
+
+  "type": "commonjs",
+
+  "dependencies": {
+    "@google/generative-ai": "^0.24.1",
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "groq-sdk": "^1.4.0",
+    "multer": "^2.2.0",
+    "music-metadata": "^11.14.0",
+    "pptxgenjs": "^4.0.1"
+  }
+}

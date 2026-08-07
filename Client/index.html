@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Voice To Slide</title>
+
+    <style>
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f4f4;
+            padding: 40px;
+        }
+
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            max-width: 700px;
+            margin: auto;
+        }
+
+        button {
+            padding: 12px 20px;
+            background: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #1d4ed8;
+        }
+
+        #result {
+            margin-top: 25px;
+        }
+
+        .slide {
+            background: #f8fafc;
+            padding: 15px;
+            margin-top: 15px;
+            border-radius: 8px;
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<div class="container">
+
+
+<h1>🎤 Voice To Slide</h1>
+
+
+<input 
+type="file" 
+id="audioFile" 
+accept="audio/*"
+/>
+
+
+<br><br>
+
+
+<button id="uploadButton">
+Generate Slides
+</button>
+
+
+<div id="result"></div>
+
+
+</div>
+
+
+
+<script>
+
+
+console.log("PAGE LOADED");
+
+
+
+const button = document.getElementById("uploadButton");
+
+const audioInput = document.getElementById("audioFile");
+
+const result = document.getElementById("result");
+
+
+
+
+button.onclick = async function(){
+
+
+
+console.log("BUTTON CLICKED");
+
+
+
+const file = audioInput.files[0];
+
+
+
+console.log("FILE:", file);
+
+
+
+if(!file){
+
+alert("Please select an audio file");
+
+return;
+
+}
+
+
+
+
+const formData = new FormData();
+
+
+formData.append(
+    "audio",
+    file
+);
+
+
+
+result.innerHTML = 
+"<h2>⏳ Transcribing audio...</h2>";
+
+
+
+try{
+
+
+// =============================
+// STEP 1: TRANSCRIBE AUDIO
+// =============================
+
+
+console.log("CALLING /transcribe");
+
+
+
+const response = await fetch(
+
+"http://localhost:5000/transcribe",
+
+{
+
+method:"POST",
+
+body:formData
+
+}
+
+);
+
+
+
+console.log(
+"TRANSCRIBE STATUS:",
+response.status
+);
+
+
+
+const data = await response.json();
+
+
+
+console.log(
+"TRANSCRIBE DATA:",
+data
+);
+
+
+
+if(!data.transcript){
+
+throw new Error(
+"No transcript received"
+);
+
+}
+
+
+
+result.innerHTML = `
+
+<h2>📝 Transcript</h2>
+
+<p>
+${data.transcript}
+</p>
+
+
+<hr>
+
+
+<h2>🤖 Generating slides...</h2>
+
+`;
+
+
+
+
+// =============================
+// STEP 2: GENERATE SLIDES
+// =============================
+
+
+console.log(
+"CALLING /generate-slides"
+);
+
+
+
+const slideResponse = await fetch(
+
+"http://localhost:5000/generate-slides",
+
+{
+
+method:"POST",
+
+headers:{
+
+"Content-Type":"application/json"
+
+},
+
+body:JSON.stringify({
+
+transcript:data.transcript
+
+})
+
+}
+
+);
+
+
+
+console.log(
+"SLIDE STATUS:",
+slideResponse.status
+);
+
+
+
+const slideData = await slideResponse.json();
+
+
+
+console.log(
+"SLIDE DATA:",
+slideData
+);
+
+
+
+if(slideData.error){
+
+throw new Error(slideData.error);
+
+}
+
+
+
+
+let html = `
+
+
+<h2>📝 Transcript</h2>
+
+<p>
+${data.transcript}
+</p>
+
+<hr>
+
+<h3>⏱ Audio Duration: ${data.duration.minutes} minute(s)</h3>
+
+<h3>💰 Processing Cost: ${data.price}</h3>
+
+
+<hr>
+
+
+<h2>📊 Generated Slides</h2>
+
+
+`;
+
+
+
+
+
+slideData.slides.forEach(
+
+(slide,index)=>{
+
+
+html += `
+
+
+<div class="slide">
+
+
+<h3>
+Slide ${index+1}: ${slide.title}
+</h3>
+
+
+<ul>
+
+${
+
+slide.points.map(
+
+(point)=>`
+
+<li>${point}</li>
+
+`
+
+).join("")
+
+}
+
+
+</ul>
+
+
+</div>
+
+
+`;
+
+
+}
+
+);
+
+
+
+
+
+html += `
+
+<hr>
+
+<h3>
+✅ Presentation Generated
+</h3>
+
+<a 
+href="${slideData.downloadUrl}"
+target="_blank"
+download
+>
+
+<button>
+⬇️ Download PowerPoint
+</button>
+
+</a>
+
+`;
+
+
+
+result.innerHTML = html;
+
+
+
+}
+
+
+
+catch(error){
+
+
+console.error(
+"ERROR:",
+error
+);
+
+
+
+result.innerHTML = `
+
+
+<h2 style="color:red">
+❌ Error
+</h2>
+
+
+<pre>
+${error.message}
+</pre>
+
+
+`;
+
+
+
+}
+
+
+
+};
+
+
+
+</script>
+
+
+
+</body>
+
+</html>

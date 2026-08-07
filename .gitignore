@@ -1,4 +1,8 @@
 server/node_modules
 server/.env
+
 server/uploads/*
-server/downloads/*.pptx
+!server/uploads/.gitkeep
+
+server/downloads/*
+!server/downloads/.gitkeep

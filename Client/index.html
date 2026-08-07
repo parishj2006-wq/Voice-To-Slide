@@ -2,7 +2,8 @@
 <html>
 
 <head>
-    <title>Voice To Slide</title>
+
+    <title>Voice To Slide AI</title>
 
     <style>
 
@@ -12,41 +13,85 @@
             padding: 40px;
         }
 
+
         .container {
+
             background: white;
             padding: 30px;
             border-radius: 10px;
             max-width: 700px;
             margin: auto;
+
         }
 
+
+        h1 {
+            text-align: center;
+        }
+
+
+        input {
+
+            margin-top: 20px;
+
+        }
+
+
         button {
+
+            margin-top: 20px;
             padding: 12px 20px;
             background: #2563eb;
             color: white;
             border: none;
             border-radius: 6px;
             cursor: pointer;
+
         }
+
 
         button:hover {
-            background: #1d4ed8;
+
+            background:#1d4ed8;
+
         }
+
 
         #result {
-            margin-top: 25px;
+
+            margin-top:25px;
+
         }
 
+
         .slide {
-            background: #f8fafc;
-            padding: 15px;
-            margin-top: 15px;
-            border-radius: 8px;
+
+            background:#f8fafc;
+            padding:15px;
+            margin-top:15px;
+            border-radius:8px;
+
         }
+
+
+        .download {
+
+            display:inline-block;
+            margin-top:20px;
+            padding:12px 20px;
+            background:#16a34a;
+            color:white;
+            text-decoration:none;
+            border-radius:6px;
+
+        }
+
 
     </style>
 
+
 </head>
+
 
 
 <body>
@@ -55,28 +100,33 @@
 <div class="container">
 
 
-<h1>🎤 Voice To Slide</h1>
+<h1>🎤 Voice To Slide AI</h1>
 
 
 <input 
-type="file" 
-id="audioFile" 
+type="file"
+id="audioFile"
 accept="audio/*"
 />
 
 
-<br><br>
+<br>
 
 
 <button id="uploadButton">
-Generate Slides
+
+Generate Presentation
+
 </button>
+
 
 
 <div id="result"></div>
 
 
+
 </div>
+
 
 
 
@@ -86,10 +136,15 @@ Generate Slides
 console.log("PAGE LOADED");
 
 
+// CHANGE THIS ONLY
+
+const BACKEND_URL = "https://voice-to-slide-backend.onrender.com";
+
+
 
 const button = document.getElementById("uploadButton");
 
-const audioInput = document.getElementById("audioFile");
+const audioFile = document.getElementById("audioFile");
 
 const result = document.getElementById("result");
 
@@ -104,22 +159,21 @@ console.log("BUTTON CLICKED");
 
 
 
-const file = audioInput.files[0];
-
-
-
-console.log("FILE:", file);
+const file = audioFile.files[0];
 
 
 
 if(!file){
 
-alert("Please select an audio file");
+    alert("Please select audio file");
 
-return;
+    return;
 
 }
 
+
+
+console.log("FILE:",file);
 
 
 
@@ -133,26 +187,26 @@ formData.append(
 
 
 
-result.innerHTML = 
-"<h2>⏳ Transcribing audio...</h2>";
-
-
-
 try{
 
 
-// =============================
-// STEP 1: TRANSCRIBE AUDIO
-// =============================
+result.innerHTML = 
+"<h3>⏳ Uploading and Transcribing...</h3>";
 
 
-console.log("CALLING /transcribe");
+
+// ======================
+// TRANSCRIBE
+// ======================
+
+
+console.log("CALLING TRANSCRIBE");
 
 
 
 const response = await fetch(
 
-"http://localhost:5000/transcribe",
+`${BACKEND_URL}/transcribe`,
 
 {
 
@@ -184,13 +238,15 @@ data
 
 
 
+
 if(!data.transcript){
 
-throw new Error(
-"No transcript received"
-);
+    throw new Error(
+        data.error || "No transcript received"
+    );
 
 }
+
 
 
 
@@ -203,30 +259,28 @@ ${data.transcript}
 </p>
 
 
-<hr>
-
-
-<h2>🤖 Generating slides...</h2>
+<h3>
+⏳ Generating Slides...
+</h3>
 
 `;
 
 
 
 
-// =============================
-// STEP 2: GENERATE SLIDES
-// =============================
+// ======================
+// GENERATE SLIDES
+// ======================
 
 
-console.log(
-"CALLING /generate-slides"
-);
+
+console.log("CALLING SLIDES");
 
 
 
 const slideResponse = await fetch(
 
-"http://localhost:5000/generate-slides",
+`${BACKEND_URL}/generate-slides`,
 
 {
 
@@ -238,11 +292,13 @@ headers:{
 
 },
 
+
 body:JSON.stringify({
 
 transcript:data.transcript
 
 })
+
 
 }
 
@@ -268,13 +324,6 @@ slideData
 
 
 
-if(slideData.error){
-
-throw new Error(slideData.error);
-
-}
-
-
 
 
 let html = `
@@ -286,15 +335,6 @@ let html = `
 ${data.transcript}
 </p>
 
-<hr>
-
-<h3>⏱ Audio Duration: ${data.duration.minutes} minute(s)</h3>
-
-<h3>💰 Processing Cost: ${data.price}</h3>
-
-
-<hr>
-
 
 <h2>📊 Generated Slides</h2>
 
@@ -304,9 +344,7 @@ ${data.transcript}
 
 
 
-
 slideData.slides.forEach(
-
 (slide,index)=>{
 
 
@@ -321,21 +359,16 @@ Slide ${index+1}: ${slide.title}
 </h3>
 
 
+
 <ul>
 
-${
 
-slide.points.map(
+${slide.points.map(
 
-(point)=>`
+point => `<li>${point}</li>`
 
-<li>${point}</li>
+).join("")}
 
-`
-
-).join("")
-
-}
 
 
 </ul>
@@ -347,9 +380,8 @@ slide.points.map(
 `;
 
 
-}
 
-);
+});
 
 
 
@@ -357,23 +389,18 @@ slide.points.map(
 
 html += `
 
-<hr>
-
-<h3>
-✅ Presentation Generated
-</h3>
 
 <a 
+class="download"
 href="${slideData.downloadUrl}"
 target="_blank"
 download
 >
 
-<button>
 ⬇️ Download PowerPoint
-</button>
 
 </a>
+
 
 `;
 
@@ -390,6 +417,7 @@ result.innerHTML = html;
 catch(error){
 
 
+
 console.error(
 "ERROR:",
 error
@@ -400,14 +428,18 @@ error
 result.innerHTML = `
 
 
-<h2 style="color:red">
+<h3 style="color:red">
+
 ❌ Error
-</h2>
+
+</h3>
 
 
-<pre>
+<p>
+
 ${error.message}
-</pre>
+
+</p>
 
 
 `;

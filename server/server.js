@@ -1,50 +1,63 @@
-// Load environment variables
 require("dotenv").config();
 
-
-// Import packages
 const express = require("express");
 const cors = require("cors");
+const path = require("path");
 
-
-// Import routes
-const slidesRoute = require("./routes/slides");
 const transcribeRoute = require("./routes/transcribe");
+const slidesRoute = require("./routes/slides");
 
-
-// Create Express app
 const app = express();
 
-
-// Middleware
 app.use(cors());
 
 app.use(express.json());
 
 
-// Serve generated PPT files
-app.use("/downloads", express.static("downloads"));
+// ==========================================
+// SERVE GENERATED PPT FILES
+// ==========================================
+
+app.use(
+    "/downloads",
+    express.static(
+        path.join(__dirname, "downloads")
+    )
+);
 
 
-// Routes
+// ==========================================
+// API ROUTES
+// ==========================================
+
 app.use(transcribeRoute);
+
 app.use(slidesRoute);
 
 
-// Test route
+// ==========================================
+// HOME ROUTE
+// ==========================================
+
 app.get("/", (req, res) => {
 
-    res.send("Voice to Slide Backend is Running");
+    res.json({
+        message: "Voice to Slide Backend is Running"
+    });
 
 });
 
 
-// Start server
+// ==========================================
+// START SERVER
+// ==========================================
+
 const PORT = process.env.PORT || 5000;
 
+app.listen(PORT, () => {
 
-app.listen(PORT, ()=>{
-
-    console.log(`Server running on port ${PORT}`);
+    console.log(
+        `Server started on port ${PORT}`
+    );
 
 });

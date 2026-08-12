@@ -1,97 +1,394 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
 
-    <title>Voice To Slide AI</title>
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0">
+
+    <title>Voice to Slide</title>
+
 
     <style>
 
+        * {
+            box-sizing: border-box;
+        }
+
+
         body {
-            font-family: Arial, sans-serif;
-            background: #f4f4f4;
-            padding: 40px;
+
+            margin: 0;
+
+            font-family:
+                Arial,
+                Helvetica,
+                sans-serif;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #080b18,
+                    #111936,
+                    #080b18
+                );
+
+            color: white;
+
+            min-height: 100vh;
+
+            padding: 40px 20px;
+
         }
 
 
         .container {
 
-            background: white;
-            padding: 30px;
-            border-radius: 10px;
-            max-width: 700px;
+            width: 100%;
+
+            max-width: 900px;
+
             margin: auto;
 
         }
 
 
-        h1 {
+        .header {
+
             text-align: center;
+
+            margin-bottom: 35px;
+
         }
 
 
-        input {
+        .logo {
+
+            font-size: 50px;
+
+            margin-bottom: 10px;
+
+        }
+
+
+        h1 {
+
+            font-size: 42px;
+
+            margin: 0;
+
+            background:
+                linear-gradient(
+                    90deg,
+                    #6c7cff,
+                    #9d7cff,
+                    #54e0c1
+                );
+
+            -webkit-background-clip: text;
+
+            -webkit-text-fill-color:
+                transparent;
+
+        }
+
+
+        .subtitle {
+
+            color: #aab3cf;
+
+            font-size: 17px;
+
+            margin-top: 12px;
+
+        }
+
+
+        .card {
+
+            background:
+                rgba(20, 27, 52, 0.95);
+
+            border:
+                1px solid #293454;
+
+            border-radius: 20px;
+
+            padding: 30px;
+
+            box-shadow:
+                0 25px 70px
+                rgba(0, 0, 0, 0.35);
+
+        }
+
+
+        .upload-area {
+
+            border:
+                2px dashed #5269ff;
+
+            border-radius: 16px;
+
+            padding: 45px 25px;
+
+            text-align: center;
+
+            background:
+                rgba(10, 16, 35, 0.7);
+
+        }
+
+
+        .upload-icon {
+
+            font-size: 50px;
+
+            margin-bottom: 15px;
+
+        }
+
+
+        input[type="file"] {
+
+            width: 100%;
+
+            padding: 14px;
 
             margin-top: 20px;
+
+            background: #171f3b;
+
+            color: white;
+
+            border:
+                1px solid #344064;
+
+            border-radius: 10px;
 
         }
 
 
         button {
 
+            width: 100%;
+
             margin-top: 20px;
-            padding: 12px 20px;
-            background: #2563eb;
-            color: white;
+
+            padding: 16px;
+
             border: none;
-            border-radius: 6px;
+
+            border-radius: 12px;
+
+            background:
+                linear-gradient(
+                    90deg,
+                    #5269ff,
+                    #7c5cff
+                );
+
+            color: white;
+
+            font-size: 17px;
+
+            font-weight: bold;
+
             cursor: pointer;
+
+            transition: 0.2s;
 
         }
 
 
         button:hover {
 
-            background:#1d4ed8;
+            transform:
+                translateY(-2px);
+
+            box-shadow:
+                0 10px 30px
+                rgba(82, 105, 255, 0.3);
 
         }
 
 
-        #result {
+        button:disabled {
 
-            margin-top:25px;
+            opacity: 0.6;
+
+            cursor: not-allowed;
+
+            transform: none;
+
+        }
+
+
+        #status {
+
+            text-align: center;
+
+            margin-top: 25px;
+
+            font-weight: bold;
+
+            color: #65e6c0;
+
+        }
+
+
+        .section {
+
+            margin-top: 25px;
+
+            padding: 25px;
+
+            background:
+                #10172c;
+
+            border-radius: 15px;
+
+            border:
+                1px solid #283352;
+
+        }
+
+
+        .section h2 {
+
+            margin-top: 0;
+
+        }
+
+
+        .transcript {
+
+            color: #cbd3e8;
+
+            line-height: 1.8;
+
+            white-space: pre-wrap;
 
         }
 
 
         .slide {
 
-            background:#f8fafc;
-            padding:15px;
-            margin-top:15px;
-            border-radius:8px;
+            background:
+                #19223d;
+
+            border-radius: 12px;
+
+            padding: 20px;
+
+            margin-top: 15px;
+
+            border-left:
+                4px solid #6575ff;
 
         }
 
 
-        .download {
+        .slide h3 {
 
-            display:inline-block;
-            margin-top:20px;
-            padding:12px 20px;
-            background:#16a34a;
-            color:white;
-            text-decoration:none;
-            border-radius:6px;
+            margin-top: 0;
+
+            color: #ffffff;
 
         }
 
+
+        .slide ul {
+
+            margin-bottom: 0;
+
+        }
+
+
+        .slide li {
+
+            color: #cbd3e8;
+
+            margin-bottom: 9px;
+
+            line-height: 1.5;
+
+        }
+
+
+        .download-box {
+
+            text-align: center;
+
+            margin-top: 20px;
+
+        }
+
+
+        .download-button {
+
+            display: inline-block;
+
+            width: auto;
+
+            padding:
+                14px 28px;
+
+            text-decoration: none;
+
+            background:
+                linear-gradient(
+                    90deg,
+                    #16a085,
+                    #20c997
+                );
+
+        }
+
+
+        .error {
+
+            margin-top: 25px;
+
+            padding: 20px;
+
+            background:
+                #351b28;
+
+            border:
+                1px solid #b9435d;
+
+            border-radius: 12px;
+
+            color: #ff9aaa;
+
+            white-space: pre-wrap;
+
+            line-height: 1.5;
+
+        }
+
+
+        .success {
+
+            color: #65e6c0;
+
+        }
+
+
+        .info {
+
+            color: #9eabca;
+
+            font-size: 14px;
+
+        }
 
     </style>
 
-
 </head>
-
 
 
 <body>
@@ -100,362 +397,630 @@
 <div class="container">
 
 
-<h1>🎤 Voice To Slide AI</h1>
+    <div class="header">
+
+        <div class="logo">
+            🎤
+        </div>
+
+        <h1>
+            Voice to Slide
+        </h1>
+
+        <p class="subtitle">
+
+            Turn your voice into
+            an AI-powered presentation.
+
+        </p>
+
+    </div>
 
 
-<input 
-type="file"
-id="audioFile"
-accept="audio/*"
-/>
+    <div class="card">
 
 
-<br>
+        <div class="upload-area">
+
+            <div class="upload-icon">
+                📁
+            </div>
+
+            <h2>
+                Upload your audio
+            </h2>
+
+            <p class="info">
+
+                Upload an MP3, WAV, M4A
+                or supported audio file.
+
+            </p>
 
 
-<button id="uploadButton">
+            <input
+                type="file"
+                id="audioFile"
+                accept="audio/*,video/*"
+            >
 
-Generate Presentation
 
-</button>
+            <button
+                id="generateButton"
+            >
+
+                🚀 Generate Presentation
+
+            </button>
+
+        </div>
 
 
+        <div id="status"></div>
 
-<div id="result"></div>
 
+        <div id="result"></div>
+
+
+    </div>
 
 
 </div>
-
-
 
 
 <script>
 
 
-console.log("PAGE LOADED");
+// ==========================================
+// BACKEND URL
+// ==========================================
 
+const BACKEND_URL =
+    "https://voice-to-slide-backend.onrender.com";
 
-// CHANGE THIS ONLY
 
-const BACKEND_URL = "https://voice-to-slide-backend.onrender.com";
+// ==========================================
+// ELEMENTS
+// ==========================================
 
-
-
-const button = document.getElementById("uploadButton");
-
-const audioFile = document.getElementById("audioFile");
-
-const result = document.getElementById("result");
-
-
-
-
-button.onclick = async function(){
-
-
-
-console.log("BUTTON CLICKED");
-
-
-
-const file = audioFile.files[0];
-
-
-
-if(!file){
-
-    alert("Please select audio file");
-
-    return;
-
-}
-
-
-
-console.log("FILE:",file);
-
-
-
-const formData = new FormData();
-
-
-formData.append(
-    "audio",
-    file
-);
-
-
-
-try{
-
-
-result.innerHTML = 
-"<h3>⏳ Uploading and Transcribing...</h3>";
-
-
-
-// ======================
-// TRANSCRIBE
-// ======================
-
-
-console.log("CALLING TRANSCRIBE");
-
-
-
-const response = await fetch(
-
-`${BACKEND_URL}/transcribe`,
-
-{
-
-method:"POST",
-
-body:formData
-
-}
-
-);
-
-
-
-console.log(
-"TRANSCRIBE STATUS:",
-response.status
-);
-
-
-
-const data = await response.json();
-
-
-
-console.log(
-"TRANSCRIBE DATA:",
-data
-);
-
-
-
-
-if(!data.transcript){
-
-    throw new Error(
-        data.error || "No transcript received"
+const audioFile =
+    document.getElementById(
+        "audioFile"
     );
 
-}
+
+const generateButton =
+    document.getElementById(
+        "generateButton"
+    );
 
 
+const status =
+    document.getElementById(
+        "status"
+    );
 
 
-result.innerHTML = `
-
-<h2>📝 Transcript</h2>
-
-<p>
-${data.transcript}
-</p>
+const result =
+    document.getElementById(
+        "result"
+    );
 
 
-<h3>
-⏳ Generating Slides...
-</h3>
+// ==========================================
+// ESCAPE HTML
+// ==========================================
 
-`;
+function escapeHTML(value) {
 
+    if (
+        value === null ||
+        value === undefined
+    ) {
 
+        return "";
 
+    }
 
-// ======================
-// GENERATE SLIDES
-// ======================
-
-
-
-console.log("CALLING SLIDES");
-
-
-
-const slideResponse = await fetch(
-
-`${BACKEND_URL}/generate-slides`,
-
-{
-
-method:"POST",
-
-headers:{
-
-"Content-Type":"application/json"
-
-},
-
-
-body:JSON.stringify({
-
-transcript:data.transcript
-
-})
-
+    return String(value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
 
 }
 
-);
 
+// ==========================================
+// READ JSON SAFELY
+// ==========================================
 
+async function readResponse(response) {
 
-console.log(
-"SLIDE STATUS:",
-slideResponse.status
-);
+    const text =
+        await response.text();
 
 
+    console.log(
+        "RAW RESPONSE:",
+        text
+    );
 
-const slideData = await slideResponse.json();
 
+    try {
 
+        return JSON.parse(text);
 
-console.log(
-"SLIDE DATA:",
-slideData
-);
+    }
 
+    catch (error) {
 
+        throw new Error(
+            "Server returned an invalid response:\n\n" +
+            text.substring(0, 500)
+        );
 
-
-
-let html = `
-
-
-<h2>📝 Transcript</h2>
-
-<p>
-${data.transcript}
-</p>
-
-
-<h2>📊 Generated Slides</h2>
-
-
-`;
-
-
-
-
-slideData.slides.forEach(
-(slide,index)=>{
-
-
-html += `
-
-
-<div class="slide">
-
-
-<h3>
-Slide ${index+1}: ${slide.title}
-</h3>
-
-
-
-<ul>
-
-
-${slide.points.map(
-
-point => `<li>${point}</li>`
-
-).join("")}
-
-
-
-</ul>
-
-
-</div>
-
-
-`;
-
-
-
-});
-
-
-
-
-
-html += `
-
-
-<a 
-class="download"
-href="${slideData.downloadUrl}"
-target="_blank"
-download
->
-
-⬇️ Download PowerPoint
-
-</a>
-
-
-`;
-
-
-
-result.innerHTML = html;
-
-
+    }
 
 }
 
 
+// ==========================================
+// GENERATE BUTTON
+// ==========================================
 
-catch(error){
-
-
-
-console.error(
-"ERROR:",
-error
-);
+generateButton.addEventListener(
+    "click",
+    async function () {
 
 
-
-result.innerHTML = `
-
-
-<h3 style="color:red">
-
-❌ Error
-
-</h3>
+        console.log(
+            "BUTTON CLICKED"
+        );
 
 
-<p>
-
-${error.message}
-
-</p>
+        const file =
+            audioFile.files[0];
 
 
-`;
+        if (!file) {
+
+            alert(
+                "Please select an audio file first."
+            );
+
+            return;
+
+        }
 
 
+        console.log(
+            "FILE:",
+            file
+        );
 
-}
+
+        generateButton.disabled =
+            true;
 
 
+        generateButton.innerText =
+            "⏳ Processing...";
 
-};
 
+        status.innerText =
+            "Uploading audio...";
+
+
+        result.innerHTML =
+            "";
+
+
+        try {
+
+
+            // ==================================
+            // TRANSCRIPTION
+            // ==================================
+
+            console.log(
+                "CALLING TRANSCRIBE"
+            );
+
+
+            const formData =
+                new FormData();
+
+
+            formData.append(
+                "audio",
+                file
+            );
+
+
+            status.innerText =
+                "🎙️ Transcribing audio...";
+
+
+            const transcribeResponse =
+                await fetch(
+                    BACKEND_URL +
+                    "/transcribe",
+                    {
+                        method: "POST",
+                        body: formData
+                    }
+                );
+
+
+            console.log(
+                "TRANSCRIBE STATUS:",
+                transcribeResponse.status
+            );
+
+
+            const transcribeData =
+                await readResponse(
+                    transcribeResponse
+                );
+
+
+            if (
+                !transcribeResponse.ok
+            ) {
+
+                throw new Error(
+                    transcribeData.error ||
+                    "Transcription failed."
+                );
+
+            }
+
+
+            if (
+                !transcribeData.transcript
+            ) {
+
+                throw new Error(
+                    "No transcript was returned."
+                );
+
+            }
+
+
+            const transcript =
+                transcribeData.transcript;
+
+
+            // ==================================
+            // SHOW TRANSCRIPT
+            // ==================================
+
+            result.innerHTML = `
+
+                <div class="section">
+
+                    <h2>
+                        📝 Transcript
+                    </h2>
+
+                    <div class="transcript">
+
+                        ${escapeHTML(
+                            transcript
+                        )}
+
+                    </div>
+
+                </div>
+
+            `;
+
+
+            // ==================================
+            // GENERATE SLIDES
+            // ==================================
+
+            status.innerText =
+                "🤖 AI is creating your slides...";
+
+
+            console.log(
+                "CALLING GENERATE-SLIDES"
+            );
+
+
+            const slideResponse =
+                await fetch(
+                    BACKEND_URL +
+                    "/generate-slides",
+                    {
+
+                        method: "POST",
+
+                        headers: {
+                            "Content-Type":
+                                "application/json"
+                        },
+
+                        body: JSON.stringify({
+                            transcript:
+                                transcript
+                        })
+
+                    }
+                );
+
+
+            console.log(
+                "SLIDE STATUS:",
+                slideResponse.status
+            );
+
+
+            const slideData =
+                await readResponse(
+                    slideResponse
+                );
+
+
+            console.log(
+                "SLIDE DATA:",
+                slideData
+            );
+
+
+            if (
+                !slideResponse.ok
+            ) {
+
+                throw new Error(
+                    slideData.error ||
+                    "Slide generation failed."
+                );
+
+            }
+
+
+            // ==================================
+            // GET SLIDES
+            // ==================================
+
+            let slides = null;
+
+
+            if (
+                Array.isArray(
+                    slideData.slides
+                )
+            ) {
+
+                slides =
+                    slideData.slides;
+
+            }
+
+
+            if (!slides) {
+
+                throw new Error(
+                    "The server did not return a valid slides array."
+                );
+
+            }
+
+
+            // ==================================
+            // DISPLAY SLIDES
+            // ==================================
+
+            let html = `
+
+                <div class="section">
+
+                    <h2>
+                        📊 Generated Slides
+                    </h2>
+
+            `;
+
+
+            slides.forEach(
+                function(slide, index) {
+
+
+                    const title =
+                        slide.title ||
+                        "Slide " +
+                        (index + 1);
+
+
+                    const points =
+                        Array.isArray(
+                            slide.points
+                        )
+                        ? slide.points
+                        : [];
+
+
+                    html += `
+
+                        <div class="slide">
+
+                            <h3>
+
+                                Slide
+                                ${index + 1}:
+                                ${escapeHTML(
+                                    title
+                                )}
+
+                            </h3>
+
+                            <ul>
+
+                    `;
+
+
+                    points.forEach(
+                        function(point) {
+
+                            html += `
+
+                                <li>
+                                    ${escapeHTML(
+                                        point
+                                    )}
+                                </li>
+
+                            `;
+
+                        }
+                    );
+
+
+                    html += `
+
+                            </ul>
+
+                        </div>
+
+                    `;
+
+                }
+            );
+
+
+            html += `
+
+                </div>
+
+            `;
+
+
+            // ==================================
+            // DOWNLOAD BUTTON
+            // ==================================
+
+            const fileName =
+                slideData.file ||
+                "presentation.pptx";
+
+
+            const downloadURL =
+                BACKEND_URL +
+                "/downloads/" +
+                encodeURIComponent(
+                    fileName
+                );
+
+
+            html += `
+
+                <div class="section">
+
+                    <h2 class="success">
+
+                        ✅ Presentation Generated
+
+                    </h2>
+
+
+                    <div class="download-box">
+
+                        <p>
+
+                            📁
+                            ${escapeHTML(
+                                fileName
+                            )}
+
+                        </p>
+
+
+                        <a
+                            class="download-button"
+                            href="${downloadURL}"
+                            target="_blank"
+                            download
+                        >
+
+                            ⬇️ Download PowerPoint
+
+                        </a>
+
+                    </div>
+
+                </div>
+
+            `;
+
+
+            result.innerHTML +=
+                html;
+
+
+            status.innerText =
+                "✅ Presentation generated successfully!";
+
+
+            console.log(
+                "PRESENTATION COMPLETE"
+            );
+
+
+        }
+
+        catch (error) {
+
+
+            console.error(
+                "FRONTEND ERROR:",
+                error
+            );
+
+
+            status.innerText =
+                "❌ Something went wrong.";
+
+
+            result.innerHTML += `
+
+                <div class="error">
+
+                    <strong>
+                        ❌ Error
+                    </strong>
+
+                    <br><br>
+
+                    ${escapeHTML(
+                        error.message
+                    )}
+
+                </div>
+
+            `;
+
+        }
+
+
+        finally {
+
+            generateButton.disabled =
+                false;
+
+
+            generateButton.innerText =
+                "🚀 Generate Presentation";
+
+        }
+
+    });
 
 
 </script>
-
 
 
 </body>

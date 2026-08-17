@@ -4,39 +4,48 @@ const router = express.Router();
 const groq = require("../services/groq");
 const createPresentation = require("../services/ppt");
 
+
 router.post("/generate-slides", async (req, res) => {
 
     try {
 
         const transcript = req.body.transcript;
 
+
         if (!transcript) {
+
             return res.status(400).json({
                 error: "No transcript provided"
             });
+
         }
+
 
         console.log("================================");
         console.log("GENERATING SLIDES");
         console.log("================================");
 
 
-        const result = await groq.chat.completions.create({
+        const result =
+            await groq.chat.completions.create({
 
-            model: "llama-3.3-70b-versatile",
+                /*
+                 * CURRENT GROQ PRODUCTION MODEL
+                 */
+                model: "openai/gpt-oss-20b",
 
-            temperature: 0,
+                temperature: 0,
 
-            response_format: {
-                type: "json_object"
-            },
+                response_format: {
+                    type: "json_object"
+                },
 
-            messages: [
+                messages: [
 
-                {
-                    role: "system",
+                    {
+                        role: "system",
 
-                    content: `
+                        content: `
 You create PowerPoint presentations.
 
 You MUST return ONLY valid JSON.
@@ -57,6 +66,7 @@ The JSON must have exactly this structure:
 }
 
 IMPORTANT:
+
 - The response must be valid JSON.
 - Use double quotes for all JSON strings.
 - Never use single quotes.
@@ -66,27 +76,34 @@ IMPORTANT:
 - Every opening [ must have a matching ].
 - Create 4 to 6 slides.
 - Each slide must contain 3 to 5 points.
-- Keep points short.
-- Use only information from the transcript.
+- Keep points short and clear.
+- Use ONLY information from the transcript.
+- Do not invent facts.
+- Do not add information that is not present in the transcript.
 `
-                },
+                    },
 
-                {
-                    role: "user",
 
-                    content:
-                        "Create presentation slides from this transcript:\n\n" +
-                        transcript
+                    {
+                        role: "user",
 
-                }
+                        content:
+                            "Create presentation slides from this transcript:\n\n" +
+                            transcript
 
-            ]
+                    }
 
-        });
+                ]
+
+            });
 
 
         const aiResponse =
-            result.choices[0].message.content;
+            result.choices &&
+            result.choices[0] &&
+            result.choices[0].message
+                ? result.choices[0].message.content
+                : null;
 
 
         console.log("================================");
@@ -99,13 +116,23 @@ IMPORTANT:
         if (!aiResponse) {
 
             return res.status(500).json({
-                error: "AI returned an empty response"
+
+                error:
+                    "AI returned an empty response"
+
             });
 
         }
 
 
+        /*
+         * ==========================================
+         * PARSE JSON
+         * ==========================================
+         */
+
         let parsed;
+
 
         try {
 
@@ -121,6 +148,7 @@ IMPORTANT:
             console.log(
                 jsonError.message
             );
+
 
             console.log(
                 "AI RESPONSE:",
@@ -141,6 +169,12 @@ IMPORTANT:
         }
 
 
+        /*
+         * ==========================================
+         * VALIDATE SLIDES
+         * ==========================================
+         */
+
         if (
             !parsed ||
             !Array.isArray(parsed.slides)
@@ -156,11 +190,18 @@ IMPORTANT:
         }
 
 
+        /*
+         * ==========================================
+         * CLEAN SLIDES
+         * ==========================================
+         */
+
         const slides =
             parsed.slides.map(
                 (slide, index) => {
 
                     let points = [];
+
 
                     if (
                         Array.isArray(
@@ -200,7 +241,15 @@ IMPORTANT:
             );
 
 
-        if (slides.length === 0) {
+        /*
+         * ==========================================
+         * CHECK SLIDES
+         * ==========================================
+         */
+
+        if (
+            slides.length === 0
+        ) {
 
             return res.status(500).json({
 
@@ -218,9 +267,11 @@ IMPORTANT:
         );
 
 
-        // =====================================
-        // CREATE POWERPOINT
-        // =====================================
+        /*
+         * ==========================================
+         * CREATE POWERPOINT
+         * ==========================================
+         */
 
         const file =
             await createPresentation(
@@ -234,11 +285,13 @@ IMPORTANT:
         );
 
 
-        // =====================================
-        // SEND RESULT
-        // =====================================
+        /*
+         * ==========================================
+         * SEND RESULT
+         * ==========================================
+         */
 
-        res.json({
+        return res.json({
 
             slides:
                 slides,
@@ -252,16 +305,28 @@ IMPORTANT:
     } catch (error) {
 
         console.log(
-            "SLIDE GENERATION ERROR:"
+            "================================"
         );
 
-        console.log(error);
+        console.log(
+            "SLIDE GENERATION ERROR"
+        );
+
+        console.log(
+            "================================"
+        );
 
 
-        res.status(500).json({
+        console.error(
+            error
+        );
+
+
+        return res.status(500).json({
 
             error:
-                error.message
+                error.message ||
+                "Slide generation failed"
 
         });
 

@@ -1,30 +1,32 @@
 // =========================================================
 // VOICE TO SLIDE
 // RAZORPAY PAYMENT ROUTE
-// STEP 12.2
 // =========================================================
 
+const express = require("express");
+const crypto = require("crypto");
+const Razorpay = require("razorpay");
 
-const express =
-    require("express");
-
-const crypto =
-    require("crypto");
-
-const Razorpay =
-    require("razorpay");
-
-
-const router =
-    express.Router();
-
+const router = express.Router();
 
 // =========================================================
-// RAZORPAY CONFIGURATION
+// PRICE
 // =========================================================
 
-const razorpay =
-    new Razorpay({
+const PRICE_PER_MINUTE = 10;
+
+// =========================================================
+// CREATE RAZORPAY INSTANCE
+// =========================================================
+
+let razorpay = null;
+
+if (
+    process.env.RAZORPAY_KEY_ID &&
+    process.env.RAZORPAY_KEY_SECRET
+) {
+
+    razorpay = new Razorpay({
 
         key_id:
             process.env.RAZORPAY_KEY_ID,
@@ -34,14 +36,43 @@ const razorpay =
 
     });
 
+    console.log(
+        "RAZORPAY: CONFIGURED"
+    );
+
+} else {
+
+    console.error(
+        "RAZORPAY: KEYS NOT FOUND"
+    );
+
+}
 
 // =========================================================
-// PRICE
+// PAYMENT HEALTH CHECK
 // =========================================================
 
-const PRICE_PER_MINUTE =
-    10;
+router.get(
+    "/payment-test",
+    (req, res) => {
 
+        res.json({
+
+            success:
+                true,
+
+            razorpayConfigured:
+                !!razorpay,
+
+            message:
+                razorpay
+                    ? "Razorpay payment system is configured."
+                    : "Razorpay keys are missing."
+
+        });
+
+    }
+);
 
 // =========================================================
 // CREATE PAYMENT ORDER
@@ -65,23 +96,20 @@ router.post(
                 "================================="
             );
 
-
             // -----------------------------------------
-            // CHECK RAZORPAY CONFIGURATION
+            // CHECK RAZORPAY
             // -----------------------------------------
 
-            if (
-                !process.env.RAZORPAY_KEY_ID ||
-                !process.env.RAZORPAY_KEY_SECRET
-            ) {
+            if (!razorpay) {
 
                 console.error(
-                    "RAZORPAY KEYS ARE MISSING"
+                    "RAZORPAY IS NOT CONFIGURED"
                 );
 
                 return res.status(500).json({
 
-                    success: false,
+                    success:
+                        false,
 
                     error:
                         "Razorpay is not configured on the server."
@@ -90,9 +118,8 @@ router.post(
 
             }
 
-
             // -----------------------------------------
-            // GET MINUTES FROM FRONTEND
+            // GET MINUTES
             // -----------------------------------------
 
             const minutes =
@@ -100,15 +127,13 @@ router.post(
                     req.body.minutes
                 );
 
-
             console.log(
                 "Requested minutes:",
                 minutes
             );
 
-
             // -----------------------------------------
-            // VALIDATE MINUTES
+            // VALIDATE
             // -----------------------------------------
 
             if (
@@ -118,7 +143,8 @@ router.post(
 
                 return res.status(400).json({
 
-                    success: false,
+                    success:
+                        false,
 
                     error:
                         "Invalid audio duration."
@@ -126,7 +152,6 @@ router.post(
                 });
 
             }
-
 
             // -----------------------------------------
             // SAFETY LIMIT
@@ -138,7 +163,8 @@ router.post(
 
                 return res.status(400).json({
 
-                    success: false,
+                    success:
+                        false,
 
                     error:
                         "Audio file is too long."
@@ -146,7 +172,6 @@ router.post(
                 });
 
             }
-
 
             // -----------------------------------------
             // CALCULATE PRICE
@@ -156,14 +181,8 @@ router.post(
                 minutes *
                 PRICE_PER_MINUTE;
 
-
-            // Razorpay uses paise
-            //
-            // ₹10 = 1000 paise
-
             const amountInPaise =
                 price * 100;
-
 
             console.log(
                 "Billable minutes:",
@@ -176,13 +195,13 @@ router.post(
             );
 
             console.log(
-                "Amount in paise:",
-                amountInPaise
+                "Amount:",
+                amountInPaise,
+                "paise"
             );
 
-
             // -----------------------------------------
-            // CREATE RAZORPAY ORDER
+            // CREATE ORDER
             // -----------------------------------------
 
             const order =
@@ -212,23 +231,19 @@ router.post(
 
                 });
 
-
             console.log(
-                "Razorpay order created:"
-            );
-
-            console.log(
+                "RAZORPAY ORDER CREATED:",
                 order.id
             );
 
-
             // -----------------------------------------
-            // SEND ORDER TO FRONTEND
+            // RESPONSE
             // -----------------------------------------
 
-            res.json({
+            return res.json({
 
-                success: true,
+                success:
+                    true,
 
                 orderId:
                     order.id,
@@ -246,7 +261,6 @@ router.post(
                     price
 
             });
-
 
         } catch (error) {
 
@@ -266,12 +280,13 @@ router.post(
                 "================================="
             );
 
+            return res.status(500).json({
 
-            res.status(500).json({
-
-                success: false,
+                success:
+                    false,
 
                 error:
+                    error.message ||
                     "Unable to create payment order."
 
             });
@@ -280,7 +295,6 @@ router.post(
 
     }
 );
-
 
 // =========================================================
 // VERIFY PAYMENT
@@ -304,7 +318,6 @@ router.post(
                 "================================="
             );
 
-
             const {
 
                 razorpay_order_id,
@@ -315,9 +328,8 @@ router.post(
 
             } = req.body;
 
-
             // -----------------------------------------
-            // VALIDATE RESPONSE
+            // VALIDATE
             // -----------------------------------------
 
             if (
@@ -326,14 +338,10 @@ router.post(
                 !razorpay_signature
             ) {
 
-                console.error(
-                    "Incomplete Razorpay response"
-                );
-
-
                 return res.status(400).json({
 
-                    success: false,
+                    success:
+                        false,
 
                     error:
                         "Incomplete payment information."
@@ -342,20 +350,28 @@ router.post(
 
             }
 
+            // -----------------------------------------
+            // CHECK SECRET
+            // -----------------------------------------
 
-            console.log(
-                "Order ID:",
-                razorpay_order_id
-            );
+            if (
+                !process.env.RAZORPAY_KEY_SECRET
+            ) {
 
-            console.log(
-                "Payment ID:",
-                razorpay_payment_id
-            );
+                return res.status(500).json({
 
+                    success:
+                        false,
+
+                    error:
+                        "Razorpay secret key is missing."
+
+                });
+
+            }
 
             // -----------------------------------------
-            // CREATE EXPECTED SIGNATURE
+            // GENERATE SIGNATURE
             // -----------------------------------------
 
             const generatedSignature =
@@ -371,9 +387,8 @@ router.post(
                     )
                     .digest("hex");
 
-
             // -----------------------------------------
-            // COMPARE SIGNATURES
+            // COMPARE
             // -----------------------------------------
 
             const generatedBuffer =
@@ -386,20 +401,15 @@ router.post(
                     razorpay_signature
                 );
 
-
             if (
                 generatedBuffer.length !==
                 receivedBuffer.length
             ) {
 
-                console.error(
-                    "INVALID PAYMENT SIGNATURE"
-                );
-
-
                 return res.status(400).json({
 
-                    success: false,
+                    success:
+                        false,
 
                     error:
                         "Payment verification failed."
@@ -407,7 +417,6 @@ router.post(
                 });
 
             }
-
 
             const isValid =
                 crypto.timingSafeEqual(
@@ -415,29 +424,16 @@ router.post(
                     receivedBuffer
                 );
 
-
-            // -----------------------------------------
-            // PAYMENT FAILED
-            // -----------------------------------------
-
             if (!isValid) {
-
-                console.error(
-                    "================================="
-                );
 
                 console.error(
                     "INVALID RAZORPAY SIGNATURE"
                 );
 
-                console.error(
-                    "================================="
-                );
-
-
                 return res.status(400).json({
 
-                    success: false,
+                    success:
+                        false,
 
                     error:
                         "Payment verification failed."
@@ -446,14 +442,9 @@ router.post(
 
             }
 
-
             // -----------------------------------------
-            // PAYMENT VERIFIED
+            // SUCCESS
             // -----------------------------------------
-
-            console.log(
-                "================================="
-            );
 
             console.log(
                 "PAYMENT VERIFIED SUCCESSFULLY"
@@ -469,14 +460,10 @@ router.post(
                 razorpay_order_id
             );
 
-            console.log(
-                "================================="
-            );
+            return res.json({
 
-
-            res.json({
-
-                success: true,
+                success:
+                    true,
 
                 message:
                     "Payment verified successfully.",
@@ -489,31 +476,20 @@ router.post(
 
             });
 
-
         } catch (error) {
 
             console.error(
-                "================================="
-            );
-
-            console.error(
-                "PAYMENT VERIFICATION ERROR"
-            );
-
-            console.error(
+                "PAYMENT VERIFICATION ERROR:",
                 error
             );
 
-            console.error(
-                "================================="
-            );
+            return res.status(500).json({
 
-
-            res.status(500).json({
-
-                success: false,
+                success:
+                    false,
 
                 error:
+                    error.message ||
                     "Payment verification failed."
 
             });
@@ -523,9 +499,8 @@ router.post(
     }
 );
 
-
 // =========================================================
-// EXPORT ROUTER
+// EXPORT
 // =========================================================
 
 module.exports =

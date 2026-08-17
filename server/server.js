@@ -1,41 +1,16 @@
 // =========================================================
 // VOICE TO SLIDE BACKEND
-// STEP 12.2 - RAZORPAY PAYMENT INTEGRATION
-// =========================================================
-
-
-// =========================================================
-// LOAD ENVIRONMENT VARIABLES
+// RAZORPAY + TRANSCRIPTION + SLIDE GENERATION
 // =========================================================
 
 require("dotenv").config();
 
-
-// =========================================================
-// IMPORT PACKAGES
-// =========================================================
-
 const express = require("express");
 const cors = require("cors");
 
-
-// =========================================================
-// IMPORT ROUTES
-// =========================================================
-
-const slidesRoute =
-    require("./routes/slides");
-
-const transcribeRoute =
-    require("./routes/transcribe");
-
-const paymentRoute =
-    require("./routes/payment");
-
-
-// =========================================================
-// CREATE EXPRESS APP
-// =========================================================
+const slidesRoute = require("./routes/slides");
+const transcribeRoute = require("./routes/transcribe");
+const paymentRoute = require("./routes/payment");
 
 const app = express();
 
@@ -44,12 +19,23 @@ const app = express();
 // MIDDLEWARE
 // =========================================================
 
-app.use(
-    cors()
-);
+app.use(cors());
+
+app.use(express.json());
+
+
+// =========================================================
+// DOWNLOADS
+// =========================================================
 
 app.use(
-    express.json()
+    "/downloads",
+    express.static(
+        require("path").join(
+            __dirname,
+            "../downloads"
+        )
+    )
 );
 
 
@@ -76,16 +62,51 @@ app.use(
 
 
 // =========================================================
-// TEST ROUTE
+// HOME TEST
 // =========================================================
 
 app.get(
     "/",
     (req, res) => {
 
-        res.send(
-            "Voice to Slide Backend is Running"
-        );
+        res.json({
+
+            success: true,
+
+            message:
+                "Voice to Slide Backend is Running",
+
+            payment:
+                "Razorpay Enabled"
+
+        });
+
+    }
+);
+
+
+// =========================================================
+// PAYMENT TEST
+// =========================================================
+
+app.get(
+    "/payment-test",
+    (req, res) => {
+
+        res.json({
+
+            success: true,
+
+            message:
+                "Payment route is working",
+
+            razorpayKeyConfigured:
+                !!process.env.RAZORPAY_KEY_ID,
+
+            razorpaySecretConfigured:
+                !!process.env.RAZORPAY_KEY_SECRET
+
+        });
 
     }
 );
